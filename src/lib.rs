@@ -2,7 +2,9 @@ use actix_web::dev::Server;
 use actix_web::{web, App, HttpServer};
 use std::net::TcpListener;
 
+pub mod configuration;
 pub mod routes;
+pub mod startup;
 
 use routes::health_check;
 use routes::subscribe;
