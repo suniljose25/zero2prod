@@ -41,7 +41,7 @@ jobs:
           --locked
 
       - name: Install postgresql-client
-        run: sudo apt-get update && sudo api-get install postgresql-client -y
+        run: sudo apt-get update && sudo apt-get install postgresql-client -y
 
       - name: Migrate database
         run: SKIP_DOCKER=true ./scripts/init_db.sh
@@ -92,7 +92,7 @@ jobs:
           --locked
 
       - name: Install postgresql-client
-        run: sudo apt-get update && sudo api-get install postgresql-client -y
+        run: sudo apt-get update && sudo apt-get install postgresql-client -y
 
       - name: Migrate database
         run: SKIP_DOCKER=true ./scripts/init_db.sh
@@ -132,7 +132,7 @@ jobs:
           --locked
 
       - name: Install postgresql-client
-        run: sudo apt-get update && sudo api-get install postgresql-client -y
+        run: sudo apt-get update && sudo apt-get install postgresql-client -y
 
       - name: Migrate database
         run: SKIP_DOCKER=true ./scripts/init_db.sh
