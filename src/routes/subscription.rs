@@ -1,7 +1,7 @@
 use actix_web::web::Form;
 use actix_web::{web, HttpResponse, Responder};
 use chrono::Utc;
-use sqlx::types::{chrono, uuid};
+use sqlx::types::chrono;
 use sqlx::PgPool;
 use tracing::Instrument;
 use uuid::Uuid;
