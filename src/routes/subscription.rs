@@ -9,8 +9,8 @@ use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
-    email: String,
-    name: String,
+    pub email: String,
+    pub name: String,
 }
 
 #[tracing::instrument(
@@ -22,7 +22,7 @@ pub struct FormData {
     )
 )]
 pub async fn subscribe(form: Form<FormData>, connection_pool: Data<PgPool>) -> HttpResponse {
-    let new_subscriber = match parse_subscriber(form) {
+    let new_subscriber = match form.0.try_into() {
         Ok(new_subscriber) => new_subscriber,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
