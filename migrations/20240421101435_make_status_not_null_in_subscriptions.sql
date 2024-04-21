@@ -1,5 +1,6 @@
 BEGIN;
-    UPDATE subscriptions
+-- noinspection SqlConstantExpression
+UPDATE subscriptions
         SET status = 'confirmed'
         WHERE status is NULL;
 
