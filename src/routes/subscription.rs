@@ -5,7 +5,8 @@ use sqlx::types::chrono;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-use crate::domain::{NewSubscriber, SubscriberEmail, SubscriberName};
+use crate::domain::NewSubscriber;
+use crate::email_client::EmailClient;
 
 #[derive(serde::Deserialize)]
 pub struct FormData {
@@ -15,28 +16,43 @@ pub struct FormData {
 
 #[tracing::instrument(
     name="Adding a new subscriber",
-    skip(form, connection_pool),
+    skip(form, connection_pool, email_client),
     fields(
         subscriber_email = %form.email,
         subscriber_name = %form.name
     )
 )]
-pub async fn subscribe(form: Form<FormData>, connection_pool: Data<PgPool>) -> HttpResponse {
+pub async fn subscribe(
+    form: Form<FormData>,
+    connection_pool: Data<PgPool>,
+    email_client: Data<EmailClient>,
+) -> HttpResponse {
     let new_subscriber = match form.0.try_into() {
         Ok(new_subscriber) => new_subscriber,
         Err(_) => return HttpResponse::BadRequest().finish(),
     };
 
-    match insert_subscriber(&new_subscriber, &connection_pool).await {
-        Ok(_) => HttpResponse::Ok().finish(),
-        Err(_) => HttpResponse::InternalServerError().finish(),
+    if insert_subscriber(&new_subscriber, &connection_pool)
+        .await
+        .is_err()
+    {
+        return HttpResponse::InternalServerError().finish();
     }
-}
 
-pub fn parse_subscriber(form: Form<FormData>) -> Result<NewSubscriber, String> {
-    let name = SubscriberName::parse(form.0.name)?;
-    let email = SubscriberEmail::parse(form.0.email)?;
-    Ok(NewSubscriber { name, email })
+    if email_client
+        .send_email(
+            new_subscriber.email,
+            "Welcome!",
+            "Welcome to our newsletter!",
+            "Welcome to our newsletter",
+        )
+        .await
+        .is_err()
+    {
+        return HttpResponse::InternalServerError().finish();
+    }
+
+    HttpResponse::Ok().finish()
 }
 
 #[tracing::instrument(
